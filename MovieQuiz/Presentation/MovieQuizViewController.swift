@@ -147,7 +147,7 @@ final class MovieQuizViewController: UIViewController {
 	}
 	
 	private func showNextQuestionOrResults() {
-		imageView.layer.borderColor = UIColor.black.cgColor
+		imageView.layer.borderColor = UIColor.ypBlack.cgColor
 
 		if currentQuestionIndex < questions.count {
 			let currentQuestion = questions[currentQuestionIndex]
