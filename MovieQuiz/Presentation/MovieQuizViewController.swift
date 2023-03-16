@@ -71,6 +71,9 @@ final class MovieQuizViewController: UIViewController {
 	@IBOutlet weak var textLabel: UILabel!
 	@IBOutlet weak var counterLabel: UILabel!
 	
+	@IBOutlet weak var noButton: UIButton!
+	@IBOutlet weak var yesButton: UIButton!
+
 	@IBAction func noButtonClicked(_ sender: UIButton) {
 		let currentQuestion = questions[currentQuestionIndex]
 
@@ -83,10 +86,19 @@ final class MovieQuizViewController: UIViewController {
 		showAnswerResult(isCorrect: currentQuestion.correctAnswer == true)
 	}
 	
+	private func setButtonsEnabled(isEnabled: Bool) {
+		noButton.isEnabled = isEnabled
+		yesButton.isEnabled = isEnabled
+	}
+	
 	// MARK: - Lifecycle
 	override func viewDidLoad() {
 		super.viewDidLoad()
-
+		
+		imageView.layer.borderWidth = 8
+		imageView.layer.cornerRadius = 20
+		imageView.layer.masksToBounds = true
+		
 		showNextQuestionOrResults()
 	}
 	
@@ -120,10 +132,8 @@ final class MovieQuizViewController: UIViewController {
 	}
 	
 	private func showAnswerResult(isCorrect: Bool) {
-		imageView.layer.masksToBounds = true
-		imageView.layer.borderWidth = 8
+		setButtonsEnabled(isEnabled: false)
 		imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-		imageView.layer.cornerRadius = 20
 		
 		if isCorrect {
 			correctAnswersCount += 1
@@ -131,6 +141,7 @@ final class MovieQuizViewController: UIViewController {
 		currentQuestionIndex += 1
 		
 		DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+			self.setButtonsEnabled(isEnabled: true)
 			self.showNextQuestionOrResults()
 		}
 	}
