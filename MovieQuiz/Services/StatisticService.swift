@@ -36,9 +36,7 @@ final class StatisticServiceImplementation: StatisticService {
 	
 	var totalAccuracy: Double {
 		get {
-			let totalAccuracy = userDefaults.double(forKey: Keys.totalAccuracy.rawValue)
-			
-			return totalAccuracy
+			userDefaults.double(forKey: Keys.totalAccuracy.rawValue)
 		}
 		set {
 			userDefaults.set(newValue, forKey: Keys.totalAccuracy.rawValue)
@@ -47,9 +45,7 @@ final class StatisticServiceImplementation: StatisticService {
 	
 	var gamesCount: Int {
 		get {
-			let gamesCount = userDefaults.integer(forKey: Keys.gamesCount.rawValue)
-			
-			return gamesCount
+			userDefaults.integer(forKey: Keys.gamesCount.rawValue)
 		}
 		set {
 			userDefaults.set(newValue, forKey: Keys.gamesCount.rawValue)
@@ -58,9 +54,7 @@ final class StatisticServiceImplementation: StatisticService {
 	
 	var totalCorrectAnswersCount: Int {
 		get {
-			let totalCorrectAnswersCount = userDefaults.integer(forKey: Keys.totalCorrectAnswersCount.rawValue)
-			
-			return totalCorrectAnswersCount
+			userDefaults.integer(forKey: Keys.totalCorrectAnswersCount.rawValue)
 		}
 		set {
 			userDefaults.set(newValue, forKey: Keys.totalCorrectAnswersCount.rawValue)
@@ -89,7 +83,7 @@ final class StatisticServiceImplementation: StatisticService {
 		}
 		set {
 			guard let data = try? JSONEncoder().encode(newValue) else {
-				print("Невозможно сохранить результат")
+				assertionFailure("Невозможно сохранить результат")
 				return
 			}
 

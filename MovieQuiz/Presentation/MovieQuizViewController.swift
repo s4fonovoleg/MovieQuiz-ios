@@ -14,10 +14,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 	
 	private var questionFactory: QuestionFactoryProtocol?
 	private var statisticService: StatisticService?
+	private var presenter: ResultAlertPresenter?
 	private var currentQuestion: QuizQuestion?
 	
 	// MARK: - Actions
-	@IBAction func noButtonClicked(_ sender: UIButton) {
+	@IBAction private func noButtonClicked(_ sender: UIButton) {
 		guard let currentQuestion = currentQuestion else {
 			return
 		}
@@ -25,7 +26,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 		showAnswerResult(isCorrect: currentQuestion.correctAnswer == false)
 	}
 
-	@IBAction func yesButtonClicked(_ sender: UIButton) {
+	@IBAction private func yesButtonClicked(_ sender: UIButton) {
 		guard let currentQuestion = currentQuestion else {
 			return
 		}
@@ -39,6 +40,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 		
 		questionFactory = QuestionFactory(delegate: self)
 		statisticService = StatisticServiceImplementation()
+		presenter = ResultAlertPresenter(delegate: self)
 		
 		imageView.layer.borderWidth = 8
 		imageView.layer.cornerRadius = 20
@@ -73,7 +75,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 	}
 
 	private func show(quiz result: QuizResultsViewModel) {
-		let presenter = ResultAlertPresenter(delegate: self)
+		guard let presenter = presenter else {
+			return
+		}
+
 		let alertModel = AlertModel(
 			title: result.title,
 			message: result.text,
@@ -117,6 +122,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 			self.questionFactory?.requestNextQuestion()
 		} else {
 			statisticService?.store(correct: correctAnswersCount, total: questionsAmount)
+			questionFactory?.resetShowedQuestions()
 
 			let result = QuizResultsViewModel(
 				title: "Раунд окончен!",
@@ -142,11 +148,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 		let bestTotal = bestGame.total
 		let bestDate = bestGame.date.dateTimeString
 
-		message +=
-			"Количество сыграных квизов: \(statisticService.gamesCount)\n" +
-			"Рекорд: \(bestCorrectAnswers)/\(bestTotal) (\(bestDate))\n" +
-			"Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%\n"
-		
+		message += """
+			Количество сыграных квизов: \(statisticService.gamesCount)
+			Рекорд: \(bestCorrectAnswers)/\(bestTotal) (\(bestDate))
+			Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
+			"""
 		return message
 	}
 }

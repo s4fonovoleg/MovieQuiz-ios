@@ -7,7 +7,7 @@
 
 import Foundation
 
-class QuestionFactory : QuestionFactoryProtocol {
+final class QuestionFactory : QuestionFactoryProtocol {
 	private static let questionText = "Рейтинг этого фильма больше чем 6?"
 	
 	private let questions: [QuizQuestion] = [
@@ -29,7 +29,7 @@ class QuestionFactory : QuestionFactoryProtocol {
 			correctAnswer: true),
 		QuizQuestion(
 			image: "Deadpool",
-			text: "Рейтинг этого фильма больше чем 6?",
+			text: questionText,
 			correctAnswer: true),
 		QuizQuestion(
 			image: "The Green Knight",
@@ -52,20 +52,30 @@ class QuestionFactory : QuestionFactoryProtocol {
 			text: questionText,
 			correctAnswer: false)
 	]
+
+	private var questionNumber: Int = 0
+	private var indices: [Int]
 	
 	weak var delegate: QuestionFactoryDelegate?
 	
 	init(delegate: QuestionFactoryDelegate) {
 		self.delegate = delegate
+		indices = (0..<questions.count).shuffled()
 	}
 	
 	func requestNextQuestion() {
-		guard let index = (0..<questions.count).randomElement() else {
+		guard let index = indices[safe: questionNumber],
+			  let question = questions[safe: index] else {
 			delegate?.didReceiveNextQuestion(question: nil)
 			return
 		}
-		
-		let question = questions[safe: index]
+				
+		questionNumber += 1
 		delegate?.didReceiveNextQuestion(question: question)
+	}
+	
+	func resetShowedQuestions() {
+		indices = (0..<questions.count).shuffled()
+		questionNumber = 0
 	}
 }
