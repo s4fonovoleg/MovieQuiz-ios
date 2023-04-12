@@ -1,22 +1,23 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+	// MARK: Properties
 	@IBOutlet private weak var imageView: UIImageView!
 	@IBOutlet private weak var textLabel: UILabel!
 	@IBOutlet private weak var counterLabel: UILabel!
-	
+	@IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
 	@IBOutlet private weak var noButton: UIButton!
 	@IBOutlet private weak var yesButton: UIButton!
-	
+
 	private let questionsAmount: Int = 10
 	private var currentQuestionIndex: Int = 0
 	private var correctAnswersCount: Int = 0
-	
+
 	private var questionFactory: QuestionFactoryProtocol?
 	private var statisticService: StatisticService?
 	private var presenter: ResultAlertPresenter?
 	private var currentQuestion: QuizQuestion?
-	
+
 	// MARK: - Actions
 	@IBAction private func noButtonClicked(_ sender: UIButton) {
 		guard let currentQuestion = currentQuestion else {
@@ -33,24 +34,66 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
 		showAnswerResult(isCorrect: currentQuestion.correctAnswer == true)
 	}
-	
+
+	//MARK: Loading indicator
+	private func showLoadingIndicator() {
+		activityIndicator.isHidden = false
+		activityIndicator.startAnimating()
+	}
+
+	private func hideLoadingIndicator() {
+		activityIndicator.isHidden = true
+		activityIndicator.stopAnimating()
+	}
+
+	// MARK: Network data loading
+	func didLoadDataFromServer() {
+		hideLoadingIndicator()
+		showNextQuestionOrResults()
+	}
+
+	func didFailToLoadData(with error: Error) {
+		hideLoadingIndicator()
+		showNetworkError(message: error.localizedDescription)
+	}
+
+	private func showNetworkError(message: String) {
+		hideLoadingIndicator()
+
+		guard let presenter = presenter else {
+			return
+		}
+
+		let alertModel = AlertModel(
+			title: "Ошибка",
+			message: message,
+			buttonText: "Попробовать еще раз",
+			completion: { [weak self] in
+				self?.questionFactory?.loadData()
+			})
+
+		presenter.show(model: alertModel)
+	}
+
 	// MARK: - Lifecycle
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
-		questionFactory = QuestionFactory(delegate: self)
+
+		questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
 		statisticService = StatisticServiceImplementation()
 		presenter = ResultAlertPresenter(delegate: self)
 		
+		imageView.layer.borderColor = UIColor.ypBlack.cgColor
 		imageView.layer.borderWidth = 8
 		imageView.layer.cornerRadius = 20
 		imageView.layer.masksToBounds = true
 		
-		showNextQuestionOrResults()
+		questionFactory?.loadData()
 	}
-	
+
 	// MARK: - QuestionFactoryDelegate
 	func didReceiveNextQuestion(question: QuizQuestion?) {
+		hideLoadingIndicator()
 		guard let question = question else { return }
 		
 		currentQuestion = question
@@ -61,8 +104,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 			self?.show(quiz: viewModel)
 		}
 	}
-	
+
 	// MARK: - Private functions
+	private func convert(model: QuizQuestion) -> QuizStepViewModel {
+		return QuizStepViewModel(
+			image: UIImage(data: model.image) ?? UIImage(),
+			question: model.text,
+			questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
+	}
+
 	private func setButtonsEnabled(isEnabled: Bool) {
 		noButton.isEnabled = isEnabled
 		yesButton.isEnabled = isEnabled
@@ -90,13 +140,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 		
 		presenter.show(model: alertModel)
 	}
-
-	private func convert(model: QuizQuestion) -> QuizStepViewModel {
-		return QuizStepViewModel(
-			image: UIImage(named: model.image) ?? UIImage(),
-			question: model.text,
-			questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
-	}
 	
 	private func showAnswerResult(isCorrect: Bool) {
 		setButtonsEnabled(isEnabled: false)
@@ -117,6 +160,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 	
 	private func showNextQuestionOrResults() {
 		imageView.layer.borderColor = UIColor.ypBlack.cgColor
+		showLoadingIndicator()
 
 		if currentQuestionIndex < questionsAmount {
 			self.questionFactory?.requestNextQuestion()
