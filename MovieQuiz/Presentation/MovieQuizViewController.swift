@@ -37,12 +37,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
 	//MARK: Loading indicator
 	private func showLoadingIndicator() {
-		activityIndicator.isHidden = false
 		activityIndicator.startAnimating()
 	}
 
 	private func hideLoadingIndicator() {
-		activityIndicator.isHidden = true
 		activityIndicator.stopAnimating()
 	}
 
@@ -78,7 +76,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 	// MARK: - Lifecycle
 	override func viewDidLoad() {
 		super.viewDidLoad()
-
+		
+		activityIndicator.hidesWhenStopped = true;
+		
 		questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
 		statisticService = StatisticServiceImplementation()
 		presenter = ResultAlertPresenter(delegate: self)
@@ -88,6 +88,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 		imageView.layer.cornerRadius = 20
 		imageView.layer.masksToBounds = true
 		
+		showLoadingIndicator()
 		questionFactory?.loadData()
 	}
 
