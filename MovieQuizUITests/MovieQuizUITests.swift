@@ -67,7 +67,7 @@ final class MovieQuizUITests: XCTestCase {
 	}
 	
 	func tapButton(_ buttonIdentifier: String) {
-		sleep(15)
+		sleep(2)
 
 		let firstPoster = app.images["Poster"]
 		let firstPostedData = firstPoster.screenshot().pngRepresentation
@@ -76,7 +76,7 @@ final class MovieQuizUITests: XCTestCase {
 		XCTAssertTrue(firstPoster.exists)
 		app.buttons[buttonIdentifier].tap()
 		
-		sleep(15)
+		sleep(2)
 
 		let secondPoster = app.images["Poster"]
 		let secondPosterData = secondPoster.screenshot().pngRepresentation

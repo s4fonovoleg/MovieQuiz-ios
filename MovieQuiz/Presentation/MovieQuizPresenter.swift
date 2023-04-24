@@ -14,10 +14,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
 	var currentQuestion: QuizQuestion?
 	
 	private var questionFactory: QuestionFactoryProtocol?
-	private weak var viewControler: MovieQuizViewController?
+	private weak var viewControler: MovieQuizViewControllerProtocol?
 	private var statisticService = StatisticServiceImplementation()
 	
-	init(viewControler: MovieQuizViewController) {
+	init(viewControler: MovieQuizViewControllerProtocol) {
 		self.viewControler = viewControler
 		
 		questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
@@ -71,6 +71,13 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
 	
 	func noButtonClicked() {
 		didAnswer(givenAnswer: false)
+	}
+	
+	func convert(model: QuizQuestion) -> QuizStepViewModel {
+		return QuizStepViewModel(
+			image: UIImage(data: model.image) ?? UIImage(),
+			question: model.text,
+			questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
 	}
 	
 	// MARK: Private functions
@@ -132,12 +139,5 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
 			Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
 			"""
 		return message
-	}
-	
-	private func convert(model: QuizQuestion) -> QuizStepViewModel {
-		return QuizStepViewModel(
-			image: UIImage(data: model.image) ?? UIImage(),
-			question: model.text,
-			questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
 	}
 }
