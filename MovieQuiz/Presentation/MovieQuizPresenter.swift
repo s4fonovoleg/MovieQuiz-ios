@@ -12,7 +12,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
 	let questionsAmount: Int = 10
 	var correctAnswersCount: Int = 0
 	var currentQuestion: QuizQuestion?
-	
+	var isLastQuestion: Bool {
+		currentQuestionIndex == questionsAmount
+	}
+
 	private var questionFactory: QuestionFactoryProtocol?
 	private weak var viewControler: MovieQuizViewControllerProtocol?
 	private var statisticService = StatisticServiceImplementation()
@@ -54,10 +57,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
 		correctAnswersCount = 0
 		currentQuestionIndex = 0
 		questionFactory?.requestNextQuestion()
-	}
-	
-	func isLastQuestion() -> Bool {
-		currentQuestionIndex == questionsAmount
 	}
 	
 	func switchToNextQuestion() {
@@ -109,7 +108,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
 	}
 	
 	private func showNextQuestionOrResults() {
-		if !isLastQuestion() {
+		if !isLastQuestion {
 			questionFactory?.requestNextQuestion()
 		} else {
 			statisticService.store(correct: correctAnswersCount, total: questionsAmount)
