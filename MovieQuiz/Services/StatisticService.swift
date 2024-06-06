@@ -1,10 +1,3 @@
-//
-//  StatisticService.swift
-//  MovieQuiz
-//
-//  Created by Олег Сафонов on 03.04.2023.
-//
-
 import Foundation
 
 struct GameRecord: Codable, Comparable {

@@ -1,10 +1,3 @@
-//
-//  MoviesLoader.swift
-//  MovieQuiz
-//
-//  Created by Олег Сафонов on 10.04.2023.
-//
-
 import Foundation
 
 protocol MoviesLoading {

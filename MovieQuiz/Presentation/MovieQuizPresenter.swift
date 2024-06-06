@@ -1,10 +1,3 @@
-//
-//  MovieQuizPresenter.swift
-//  MovieQuiz
-//
-//  Created by Олег Сафонов on 23.04.2023.
-//
-
 import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
